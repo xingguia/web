@@ -186,18 +186,18 @@ function renderProducts(products, isFavorites = false) {
     products.forEach(p => {
         const card = document.createElement('div');
         card.className = 'product-card';
-        
-        const actionBtn = isFavorites 
-            ? `<button onclick="removeFromFavorites(${p.id})" class="secondary-btn" style="padding: 5px 10px; font-size: 12px;">取消收藏</button>`
-            : `<button onclick="addToFavorites(${p.id})" class="primary-btn" style="padding: 5px 10px; font-size: 12px;">收藏</button>`;
-
         card.innerHTML = `
-            <div class="product-name">${p.name}</div>
-            <span class="product-category">${p.category || '未分类'}</span>
-            <div class="product-price">¥${p.price}</div>
-            <div class="product-desc">${p.description || ''}</div>
-            <div style="margin-top: 10px; text-align: right;">
-                ${actionBtn}
+            <img src="${p.image_url || '/images/default.svg'}" alt="${p.name}" class="product-image" onerror="this.src='/images/default.svg'">
+            <div class="product-info">
+                <h3>${p.name}</h3>
+                <p>${p.description}</p>
+                <div class="product-meta">
+                    <span class="price">$${p.price}</span>
+                    <span class="category">${p.category}</span>
+                </div>
+                <div class="product-actions">
+                    <button class="btn-fav" onclick="addToFavorites(${p.id})">❤ Favorite</button>
+                </div>
             </div>
         `;
         container.appendChild(card);
