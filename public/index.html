@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>迷你电商</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>迷你电商演示</h1>
+            <div id="user-info" style="display: none;">
+                <span id="username-display"></span>
+                <button onclick="showFavorites()" id="fav-btn">我的收藏</button>
+                <button onclick="logout()">退出登录</button>
+            </div>
+        </header>
+
+        <!-- 登录/注册部分 -->
+        <section id="auth-section">
+            <div class="auth-box">
+                <h2>欢迎</h2>
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="username" placeholder="输入用户名">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="password" placeholder="输入密码">
+                </div>
+                <div class="btn-group">
+                    <button onclick="login()" class="primary-btn">登录</button>
+                    <button onclick="register()" class="secondary-btn">注册</button>
+                </div>
+                <p id="auth-message" class="message"></p>
+            </div>
+        </section>
+
+        <!-- 商品列表部分 -->
+        <section id="product-section" style="display: none;">
+            <div class="controls">
+                <button onclick="showProductSection()" style="margin-right: 10px;">所有商品</button>
+                <input type="text" id="search-input" placeholder="搜索商品..." onkeyup="loadProducts()">
+                <select id="category-select" onchange="loadProducts()">
+                    <option value="">所有分类</option>
+                    <option value="Electronics">电子产品</option>
+                    <option value="Audio">音频</option>
+                    <option value="Accessories">配件</option>
+                </select>
+            </div>
+            <div id="product-list" class="product-grid">
+                <!-- 商品卡片将在这里生成 -->
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
