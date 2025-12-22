@@ -1,15 +1,16 @@
 {
   "name": "webqimo",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.js",
+  "description": "Mini E-commerce API with RESTful design, JWT auth, MySQL, and Nginx integration.",
   "scripts": {
     "start": "node app.js",
+    "db:status": "node scripts/show-db-status.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.1",

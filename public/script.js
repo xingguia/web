@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000'; // 如果使用 Nginx 代理，这里可以改成 '/api'
+const API_URL = '/api'; // Use relative path so it works with Nginx proxy on any domain
 
 // State
 let accessToken = localStorage.getItem('accessToken');
