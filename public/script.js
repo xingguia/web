@@ -4,6 +4,7 @@ const API_URL = '/api'; // Use relative path so it works with Nginx proxy on any
 let accessToken = localStorage.getItem('accessToken');
 let refreshToken = localStorage.getItem('refreshToken');
 let currentUser = localStorage.getItem('username');
+let currentRole = localStorage.getItem('role');
 
 // Init
 document.addEventListener('DOMContentLoaded', () => {
@@ -57,7 +58,8 @@ async function tryRefreshToken() {
 }
 
 function showAuthSection() {
-    document.getElementById('auth-section').style.display = 'block';
+    // Reset display to allow CSS flexbox to take effect
+    document.getElementById('auth-section').style.display = '';
     document.getElementById('product-section').style.display = 'none';
     document.getElementById('user-info').style.display = 'none';
 }
@@ -67,6 +69,18 @@ function showProductSection() {
     document.getElementById('product-section').style.display = 'block';
     document.getElementById('user-info').style.display = 'block';
     document.getElementById('username-display').textContent = `你好, ${currentUser}`;
+
+    // Show admin link if user is admin
+    const adminLink = document.getElementById('admin-link');
+    if (adminLink) {
+        // Strict check: Only trust the role returned by the server
+        if (currentRole === 'admin') {
+            adminLink.style.display = 'inline-block';
+        } else {
+            adminLink.style.display = 'none';
+        }
+    }
+
     loadProducts();
 }
 
@@ -86,32 +100,6 @@ async function showFavorites() {
 }
 
 // Auth Functions
-async function register() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    const msg = document.getElementById('auth-message');
-
-    try {
-        const res = await fetch(`${API_URL}/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        
-        if (res.ok) {
-            msg.textContent = '注册成功，请登录';
-            msg.className = 'message success';
-        } else {
-            msg.textContent = data.message;
-            msg.className = 'message error';
-        }
-    } catch (err) {
-        msg.textContent = '请求失败';
-        msg.className = 'message error';
-    }
-}
-
 async function login() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
@@ -128,11 +116,13 @@ async function login() {
         if (res.ok) {
             accessToken = data.accessToken;
             refreshToken = data.refreshToken;
-            currentUser = username;
+            currentUser = data.username || username; // Use returned username or input
+            currentRole = data.role; // Store role
             
             localStorage.setItem('accessToken', accessToken);
             localStorage.setItem('refreshToken', refreshToken);
-            localStorage.setItem('username', username);
+            localStorage.setItem('username', currentUser);
+            localStorage.setItem('role', currentRole);
             
             msg.textContent = '';
             showProductSection();
@@ -188,19 +178,16 @@ function renderProducts(products, isFavorites = false) {
         card.className = 'product-card';
         
         const actionBtn = isFavorites 
-            ? `<button class="btn-fav" style="background-color: #e63946;" onclick="removeFromFavorites(${p.id})">❌ Remove</button>`
-            : `<button class="btn-fav" onclick="addToFavorites(${p.id})">❤ Favorite</button>`;
+            ? `<button class="btn-fav btn-remove" onclick="removeFromFavorites(${p.id})">❌ 移除</button>`
+            : `<button class="btn-fav" onclick="addToFavorites(${p.id})">❤ 收藏</button>`;
 
         card.innerHTML = `
             <img src="${p.image_url || '/images/default.svg'}" alt="${p.name}" class="product-image" onerror="this.src='/images/default.svg'">
             <div class="product-info">
                 <h3>${p.name}</h3>
-                <p>${p.description}</p>
-                <div class="product-meta">
-                    <span class="price">$${p.price}</span>
-                    <span class="category">${p.category}</span>
-                </div>
-                <div class="product-actions">
+                <p>${p.description || '暂无描述'}</p>
+                <div class="product-footer">
+                    <span class="price">¥${parseFloat(p.price).toFixed(2)}</span>
                     ${actionBtn}
                 </div>
             </div>

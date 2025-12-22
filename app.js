@@ -5,6 +5,7 @@ const path = require('path');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const favoriteRoutes = require('./routes/favoriteRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(express.static(path.join(__dirname, 'public'))); // Serve static files u
 app.use('/auth', authRoutes);
 app.use('/products', productRoutes);
 app.use('/favorites', favoriteRoutes);
+app.use('/users', userRoutes);
 
 // API Status route (moved from root to avoid conflict with static files)
 app.get('/api/status', (req, res) => {

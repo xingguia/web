@@ -4,57 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>迷你电商</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>迷你电商演示</h1>
-            <div id="user-info" style="display: none;">
-                <span id="username-display"></span>
-                <button onclick="showFavorites()" id="fav-btn">我的收藏</button>
-                <button onclick="logout()">退出登录</button>
+    <div class="app-container">
+        <header class="main-header">
+            <div class="logo">
+                <span class="logo-icon">🛍️</span>
+                <h1>迷你电商</h1>
+            </div>
+            
+            <div id="user-info" class="user-controls" style="display: none;">
+                <span id="username-display" class="welcome-text"></span>
+                <a href="admin.html" id="admin-link" class="nav-link admin-link" style="display:none;">
+                    <span class="icon">🛡️</span> 管理后台
+                </a>
+                <button onclick="showFavorites()" id="fav-btn" class="nav-btn">
+                    <span class="icon">❤</span> 我的收藏
+                </button>
+                <button onclick="logout()" class="nav-btn logout-btn">退出登录</button>
             </div>
         </header>
 
         <!-- 登录/注册部分 -->
-        <section id="auth-section">
-            <div class="auth-box">
-                <h2>欢迎</h2>
+        <section id="auth-section" class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h2>欢迎回来</h2>
+                    <p>请登录您的账户以继续购物</p>
+                </div>
+                
                 <div class="form-group">
                     <label>用户名</label>
-                    <input type="text" id="username" placeholder="输入用户名">
+                    <input type="text" id="username" placeholder="请输入用户名" autocomplete="username">
                 </div>
                 <div class="form-group">
                     <label>密码</label>
-                    <input type="password" id="password" placeholder="输入密码">
+                    <input type="password" id="password" placeholder="请输入密码" autocomplete="current-password">
                 </div>
+                
                 <div class="btn-group">
-                    <button onclick="login()" class="primary-btn">登录</button>
-                    <button onclick="register()" class="secondary-btn">注册</button>
+                    <button onclick="login()" class="btn btn-primary btn-block">登录</button>
+                    <a href="register.html" class="btn btn-outline btn-block" style="text-align: center; text-decoration: none; margin-top: 10px; display: block; box-sizing: border-box;">注册新账号</a>
                 </div>
                 <p id="auth-message" class="message"></p>
             </div>
         </section>
 
         <!-- 商品列表部分 -->
-        <section id="product-section" style="display: none;">
-            <div class="controls">
-                <button onclick="showProductSection()" style="margin-right: 10px;">所有商品</button>
-                <input type="text" id="search-input" placeholder="搜索商品..." onkeyup="loadProducts()">
-                <select id="category-select" onchange="loadProducts()">
-                    <option value="">所有分类</option>
-                    <option value="Electronics">电子产品</option>
-                    <option value="Audio">音频</option>
-                    <option value="Accessories">配件</option>
-                </select>
+        <section id="product-section" class="content-section" style="display: none;">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <button onclick="showProductSection()" class="btn btn-text active">所有商品</button>
+                </div>
+                
+                <div class="toolbar-right">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="search-input" placeholder="搜索商品..." onkeyup="loadProducts()">
+                    </div>
+                    
+                    <select id="category-select" onchange="loadProducts()" class="category-select">
+                        <option value="">所有分类</option>
+                        <option value="Electronics">电子产品</option>
+                        <option value="Audio">音频设备</option>
+                        <option value="Accessories">数码配件</option>
+                        <option value="Clothing">服饰</option>
+                        <option value="Books">图书</option>
+                    </select>
+                </div>
             </div>
+
             <div id="product-list" class="product-grid">
                 <!-- 商品卡片将在这里生成 -->
+                <div class="loading-state">加载中...</div>
             </div>
         </section>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=3"></script>
 </body>
 </html>

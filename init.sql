@@ -7,6 +7,9 @@ CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
+  email VARCHAR(100) UNIQUE,
+  phone VARCHAR(20) UNIQUE,
+  role ENUM('user', 'admin') DEFAULT 'user',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -18,6 +21,26 @@ CREATE TABLE IF NOT EXISTS products (
   category VARCHAR(50),
   description TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 创建刷新令牌表
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  token VARCHAR(255) NOT NULL,
+  user_id INT NOT NULL,
+  expires_at DATETIME NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- 创建收藏夹表
+CREATE TABLE IF NOT EXISTS favorites (
+  user_id INT NOT NULL,
+  product_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, product_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
 -- 插入一些初始商品数据

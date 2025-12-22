@@ -3,10 +3,10 @@ const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 
 exports.register = async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, email, phone } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Username and password are required' });
+  if (!username || !password || !email || !phone) {
+    return res.status(400).json({ message: 'All fields are required' });
   }
 
   if (username.length < 3) {
@@ -19,8 +19,15 @@ exports.register = async (req, res) => {
 
   try {
     // Check if user exists
-    const [rows] = await db.execute('SELECT * FROM users WHERE username = ?', [username]);
+    const [rows] = await db.execute('SELECT * FROM users WHERE username = ? OR email = ? OR phone = ?', [username, email, phone]);
+    
     if (rows.length > 0) {
+      // Check specifically which field conflicts
+      for (const user of rows) {
+          if (user.username === username) return res.status(400).json({ message: 'Username already exists' });
+          if (user.email === email) return res.status(400).json({ message: 'Email already exists' });
+          if (user.phone === phone) return res.status(400).json({ message: 'Phone number already exists' });
+      }
       return res.status(400).json({ message: 'User already exists' });
     }
 
@@ -29,7 +36,7 @@ exports.register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Insert user
-    await db.execute('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword]);
+    await db.execute('INSERT INTO users (username, password, email, phone) VALUES (?, ?, ?, ?)', [username, hashedPassword, email, phone]);
 
     res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {
@@ -61,12 +68,12 @@ exports.login = async (req, res) => {
     }
 
     // Generate JWT Access Token (Short-lived)
-    const accessToken = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, {
+    const accessToken = jwt.sign({ id: user.id, username: user.username, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: '15m' // Reduced for security, client uses refresh token
     });
 
     // Generate Refresh Token (Long-lived)
-    const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    const refreshToken = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: '7d'
     });
 
@@ -74,7 +81,7 @@ exports.login = async (req, res) => {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
     await db.execute('INSERT INTO refresh_tokens (token, user_id, expires_at) VALUES (?, ?, ?)', [refreshToken, user.id, expiresAt]);
 
-    res.json({ accessToken, refreshToken });
+    res.json({ accessToken, refreshToken, role: user.role, username: user.username });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

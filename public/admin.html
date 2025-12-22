@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理系统 - 迷你电商</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --danger-color: #ef4444;
+            --danger-hover: #dc2626;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            color: var(--text-main);
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: var(--card-bg);
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .admin-header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-header h1::before {
+            content: '🛡️';
+            font-size: 1.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border-color: var(--border-color);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .btn-logout {
+            background: var(--text-main);
+            color: white;
+        }
+
+        .btn-logout:hover {
+            background: #000;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1px;
+        }
+
+        .tab-btn {
+            padding: 0.8rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        /* Content Area */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem;
+            background: #f9fafb;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: #f9fafb;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-admin {
+            background-color: #e0e7ff;
+            color: #4f46e5;
+        }
+
+        .badge-user {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .badge-category {
+            background-color: #d1fae5;
+            color: #059669;
+        }
+
+        /* Forms */
+        .add-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        input, textarea, select {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: fit-content;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .delete-btn {
+            background-color: #fee2e2;
+            color: #ef4444;
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .delete-btn:hover {
+            background-color: #fecaca;
+            color: #dc2626;
+        }
+
+        .price-cell {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+        }
+
+        .product-name-cell {
+            font-weight: 500;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>后台管理系统</h1>
+            <div class="header-actions">
+                <a href="index.html" class="btn btn-outline">← 返回商城</a>
+                <button onclick="logout()" class="btn btn-logout">退出登录</button>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('users')">用户管理</button>
+            <button class="tab-btn" onclick="switchTab('products')">商品管理</button>
+        </div>
+
+        <div id="users-tab" class="tab-content active">
+            <div class="card">
+                <h2>用户列表</h2>
+                <div id="users-list">
+                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">加载中...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="products-tab" class="tab-content">
+            <div class="card">
+                <h2>添加新商品</h2>
+                <form id="add-product-form" class="add-form">
+                    <div class="form-group">
+                        <label for="prod-name">商品名称</label>
+                        <input type="text" id="prod-name" placeholder="例如：iPhone 15" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="prod-price">价格 (¥)</label>
+                        <input type="number" id="prod-price" placeholder="0.00" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="prod-category">分类</label>
+                        <select id="prod-category">
+                            <option value="Electronics">电子产品</option>
+                            <option value="Audio">音频设备</option>
+                            <option value="Accessories">配件</option>
+                            <option value="Clothing">服饰</option>
+                            <option value="Books">图书</option>
+                            <option value="Other">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="prod-desc">商品描述</label>
+                        <textarea id="prod-desc" placeholder="请输入商品详细描述..."></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <button type="submit" class="btn btn-primary">＋ 添加商品</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>在售商品列表</h2>
+                <div id="products-list">
+                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">加载中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js?v=2"></script>
+</body>
+</html>
