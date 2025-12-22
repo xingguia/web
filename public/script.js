@@ -186,6 +186,11 @@ function renderProducts(products, isFavorites = false) {
     products.forEach(p => {
         const card = document.createElement('div');
         card.className = 'product-card';
+        
+        const actionBtn = isFavorites 
+            ? `<button class="btn-fav" style="background-color: #e63946;" onclick="removeFromFavorites(${p.id})">❌ Remove</button>`
+            : `<button class="btn-fav" onclick="addToFavorites(${p.id})">❤ Favorite</button>`;
+
         card.innerHTML = `
             <img src="${p.image_url || '/images/default.svg'}" alt="${p.name}" class="product-image" onerror="this.src='/images/default.svg'">
             <div class="product-info">
@@ -196,7 +201,7 @@ function renderProducts(products, isFavorites = false) {
                     <span class="category">${p.category}</span>
                 </div>
                 <div class="product-actions">
-                    <button class="btn-fav" onclick="addToFavorites(${p.id})">❤ Favorite</button>
+                    ${actionBtn}
                 </div>
             </div>
         `;
