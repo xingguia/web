@@ -31,12 +31,12 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // Store password as plain text per requirement to be visible in admin panel
+    // const salt = await bcrypt.genSalt(10);
+    // const hashedPassword = await bcrypt.hash(password, salt);
 
     // Insert user
-    await db.execute('INSERT INTO users (username, password, email, phone) VALUES (?, ?, ?, ?)', [username, hashedPassword, email, phone]);
+    await db.execute('INSERT INTO users (username, password, email, phone) VALUES (?, ?, ?, ?)', [username, password, email, phone]);
 
     res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {
@@ -62,7 +62,19 @@ exports.login = async (req, res) => {
     const user = rows[0];
 
     // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
+    // Support plain text (for new requirements) and bcrypt hash (legacy)
+    let isMatch = false;
+    if (user.password === password) {
+        isMatch = true;
+    } else {
+        // Fallback to bcrypt check for existing hashed passwords
+        try {
+            isMatch = await bcrypt.compare(password, user.password);
+        } catch (e) {
+            isMatch = false;
+        }
+    }
+
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }

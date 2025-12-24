@@ -11,6 +11,13 @@ if (!token || (role !== 'admin' && username !== 'admin')) {
     window.location.href = 'index.html';
 }
 
+// Init load
+document.addEventListener('DOMContentLoaded', () => {
+    // Determine active tab or default to users
+    // For simplicity, just load users if it's the active tab (which it is by default in HTML)
+    loadUsers();
+});
+
 function logout() {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
@@ -52,7 +59,8 @@ async function authFetch(url, options = {}) {
 
 // Users
 async function loadUsers() {
-    const res = await authFetch(`${API_URL}/users`);
+    // Add timestamp to prevent caching
+    const res = await authFetch(`${API_URL}/users?_t=${Date.now()}`);
     if(!res) return;
     const users = await res.json();
     
@@ -75,7 +83,30 @@ async function loadUsers() {
                         <td><span class="badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}">${u.role === 'admin' ? '管理员' : '用户'}</span></td>
                         <td>${new Date(u.created_at).toLocaleString('zh-CN')}</td>
                         <td>
+                            <button class="action-btn btn-view" onclick="toggleDetails(${u.id})">详情</button>
                             ${u.role !== 'admin' ? `<button class="action-btn delete-btn" onclick="deleteUser(${u.id})">删除</button>` : '-'}
+                        </td>
+                    </tr>
+                    <tr id="details-${u.id}" class="details-row" style="display: none;">
+                        <td colspan="5">
+                            <div class="details-content">
+                                <div class="details-item">
+                                    <strong>邮箱</strong>
+                                    ${u.email || '未绑定'}
+                                </div>
+                                <div class="details-item">
+                                    <strong>手机号</strong>
+                                    ${u.phone || '未绑定'}
+                                </div>
+                                <div class="details-item">
+                                    <strong>密码</strong>
+                                    <span style="font-family:monospace; word-break:break-all;">${u.password || '******'}</span>
+                                </div>
+                                <div class="details-item">
+                                    <strong>账号状态</strong>
+                                    <span style="color: green">正常</span>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 `).join('')}
@@ -83,6 +114,78 @@ async function loadUsers() {
         </table>
     `;
     document.getElementById('users-list').innerHTML = html;
+}
+
+function toggleDetails(userId) {
+    const row = document.getElementById(`details-${userId}`);
+    if (row.style.display === 'table-row') {
+        row.style.display = 'none';
+    } else {
+        // Close others (optional)
+        document.querySelectorAll('.details-row').forEach(r => r.style.display = 'none');
+        row.style.display = 'table-row';
+    }
+}
+
+// Modal Functions
+function openRegisterModal() {
+    document.getElementById('register-modal').classList.add('active');
+}
+
+function closeRegisterModal() {
+    document.getElementById('register-modal').classList.remove('active');
+}
+
+async function handleAdminRegister(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    // Basic validation
+    if (!data.username || !data.password || !data.email || !data.phone) {
+        alert('所有字段都是必填的');
+        return;
+    }
+
+    try {
+        // Reuse the public register API but since we are admin, we might want a specific one.
+        // For simplicity, we use the public one. To support "role" assignment, 
+        // normally we need a protected admin create route.
+        // Let's assume we want to support role assignment, we should use a different endpoint or modify the register endpoint.
+        // BUT, standard requirement usually implies admin creates user.
+        // Let's use the public /auth/register first, but that doesn't allow setting ROLE.
+        // So we will modify this to use a new admin-only create user route or just client-side register for now.
+        // Wait, the user asked "admin can register account".
+        // Let's try to call /auth/register. If we need role, we need backend support.
+        // For now, let's just register a "user" or "admin" if backend supports it.
+        // Actually, let's create a new route in userController or just use /auth/register and manually update role if needed?
+        // Better: create a new API endpoint in userController for admin to create user.
+        
+        // However, I can't easily add a new route without editing routes file.
+        // Let's check if I can edit routes. Yes I can.
+        // But to save time and complexity, I will use the existing /auth/register
+        // AND if the role is 'admin', I might need to do a SQL update manually or add a specific route.
+        // Let's add a specific route `POST /users` in userController which is RESTful.
+        
+        const res = await authFetch(`${API_URL}/users`, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+
+        if (res && res.ok) {
+            alert('用户注册成功！');
+            closeRegisterModal();
+            form.reset();
+            loadUsers();
+        } else {
+            const err = await res.json();
+            alert('注册失败: ' + (err.message || '未知错误'));
+        }
+    } catch (e) {
+        console.error(e);
+        alert('注册出错');
+    }
 }
 
 async function deleteUser(id) {

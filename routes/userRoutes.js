@@ -7,6 +7,7 @@ router.use(authenticateToken);
 router.use(authorizeAdmin);
 
 router.get('/', userController.getAllUsers);
+router.post('/', userController.createUser); // Admin create user
 router.delete('/:id', userController.deleteUser);
 
 module.exports = router;

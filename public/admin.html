@@ -297,72 +297,234 @@
             font-weight: 500;
         }
 
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .close-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box; /* Fix input width overflow */
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+
+        .details-row {
+            display: none;
+            background-color: #f9fafb;
+        }
+        
+        .details-content {
+            padding: 1rem 2rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .details-item strong {
+            color: var(--text-main);
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .btn-view {
+            background: #10b981;
+            color: white;
+            margin-right: 5px;
+        }
+        
+        .btn-view:hover {
+            background: #059669;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
     </style>
 </head>
 <body>
+
     <div class="admin-container">
-        <div class="admin-header">
+        <header class="admin-header">
             <h1>后台管理系统</h1>
             <div class="header-actions">
                 <a href="index.html" class="btn btn-outline">← 返回商城</a>
                 <button onclick="logout()" class="btn btn-logout">退出登录</button>
             </div>
-        </div>
+        </header>
 
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('users')">用户管理</button>
             <button class="tab-btn" onclick="switchTab('products')">商品管理</button>
         </div>
 
-        <div id="users-tab" class="tab-content active">
-            <div class="card">
-                <h2>用户列表</h2>
-                <div id="users-list">
-                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">加载中...</div>
+        <div class="content-area">
+            <!-- Users Tab -->
+            <div id="users-tab" class="tab-content active">
+                <div class="card">
+                    <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 style="margin: 0;">用户列表</h2>
+                        <button class="btn btn-primary" onclick="openRegisterModal()">+ 注册新用户</button>
+                    </div>
+                    <div id="users-list">加载中...</div>
+                </div>
+            </div>
+
+            <!-- Products Tab -->
+            <div id="products-tab" class="tab-content">
+                <div class="card">
+                    <h2>添加新商品</h2>
+                    <form id="add-product-form" class="add-form" onsubmit="handleAddProduct(event)">
+                        <div class="form-group">
+                            <label for="prod-name">商品名称</label>
+                            <input type="text" id="prod-name" name="name" placeholder="例如：iPhone 15" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="prod-price">价格 (¥)</label>
+                            <input type="number" id="prod-price" name="price" placeholder="0.00" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="prod-category">分类</label>
+                            <select id="prod-category" name="category">
+                                <option value="Electronics">电子产品</option>
+                                <option value="Audio">音频设备</option>
+                                <option value="Accessories">配件</option>
+                                <option value="Clothing">服饰</option>
+                                <option value="Books">图书</option>
+                                <option value="Other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="prod-desc">商品描述</label>
+                            <textarea id="prod-desc" name="description" placeholder="请输入商品详细描述..."></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <button type="submit" class="btn btn-primary">＋ 添加商品</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2>在售商品列表</h2>
+                    <div id="products-list">
+                        <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">加载中...</div>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div id="products-tab" class="tab-content">
-            <div class="card">
-                <h2>添加新商品</h2>
-                <form id="add-product-form" class="add-form">
-                    <div class="form-group">
-                        <label for="prod-name">商品名称</label>
-                        <input type="text" id="prod-name" placeholder="例如：iPhone 15" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="prod-price">价格 (¥)</label>
-                        <input type="number" id="prod-price" placeholder="0.00" step="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="prod-category">分类</label>
-                        <select id="prod-category">
-                            <option value="Electronics">电子产品</option>
-                            <option value="Audio">音频设备</option>
-                            <option value="Accessories">配件</option>
-                            <option value="Clothing">服饰</option>
-                            <option value="Books">图书</option>
-                            <option value="Other">其他</option>
-                        </select>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="prod-desc">商品描述</label>
-                        <textarea id="prod-desc" placeholder="请输入商品详细描述..."></textarea>
-                    </div>
-                    <div class="form-group full-width">
-                        <button type="submit" class="btn btn-primary">＋ 添加商品</button>
-                    </div>
-                </form>
+    <!-- User Registration Modal -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>注册新用户 (管理员)</h2>
+                <span class="close-btn" onclick="closeRegisterModal()">&times;</span>
             </div>
-
-            <div class="card">
-                <h2>在售商品列表</h2>
-                <div id="products-list">
-                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">加载中...</div>
+            <form id="admin-register-form" onsubmit="handleAdminRegister(event)">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" name="username" required minlength="3">
                 </div>
-            </div>
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label>手机号</label>
+                    <input type="tel" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" name="password" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label>角色</label>
+                    <select name="role">
+                        <option value="user">普通用户</option>
+                        <option value="admin">管理员</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeRegisterModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">立即注册</button>
+                </div>
+            </form>
         </div>
+    </div>
+
+    <!-- Product Modal (Existing placeholder, can be implemented similarly if needed) -->
+    <div id="product-modal" class="modal">
+        <!-- Content will be dynamically populated or static if implemented -->
     </div>
 
     <script src="admin.js?v=2"></script>
